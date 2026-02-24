@@ -1,10 +1,18 @@
-{   "title":    "string (필수)",   "summary":  "string",   "category": "cve 
- vuln 
- breach 
- tools 
- policy 
- other",   "severity": "critical 
- high 
- medium 
- low 
- info",   "source":   "string",   "url":      "string",   "date":     "YYYY-MM-DD",   "tags":     ["string"] }
+// n8n 데이터 연동 코드 (script.js 맨 아래 추가)
+async function fetchN8nNews() {
+    try {
+        const response = await fetch('news.json'); // n8n이 만든 파일 읽기
+        if (response.ok) {
+            const data = await response.json();
+            // SecLearn의 기존 데이터 로드 함수 호출
+            if (typeof window.loadFromN8n === 'function') {
+                window.loadFromN8n(data);
+                console.log("n8n 뉴스 업데이트 완료!");
+            }
+        }
+    } catch (e) {
+        console.log("n8n 데이터를 기다리는 중...");
+    }
+}
+// 페이지 로드 시 실행
+fetchN8nNews();
