@@ -898,28 +898,3 @@ function toast(msg, type = 'info') {
 // 실행
 // ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', init);
-
-
-// n8n이 만든 news.json 파일을 자동으로 읽어오는 기능 추가
-async function syncN8nNews() {
-  try {
-    // 1. 깃허브에 생성된 news.json 파일을 가져옵니다.
-    const response = await fetch('news.json');
-    if (response.ok) {
-      const n8nData = await response.json();
-      
-      // 2. 이미 만들어두신 loadFromN8n 함수를 사용하여 화면에 뿌려줍니다.
-      if (window.loadFromN8n) {
-        window.loadFromN8n(n8nData);
-        console.log("n8n 뉴스 동기화 완료!");
-      }
-    }
-  } catch (error) {
-    console.log("뉴스 데이터를 불러오는 중 오류 발생:", error);
-  }
-}
-
-// 페이지가 로딩될 때 실행합니다.
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(syncN8nNews, 1000); // 1초 뒤 실행 (안정성)
-});
