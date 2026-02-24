@@ -50,15 +50,57 @@ const RESOURCE_CATS = {
 };
 
 // ──────────────────────────────────────────
+// 기본 샘플 데이터
+// ──────────────────────────────────────────
+const DEFAULT_GLOSSARY = [
+  { id:'g_sql',    term:'SQL 인젝션',       eng:'SQL Injection',       category:'attack',  difficulty:'beginner',     definition:'공격자가 SQL 쿼리에 악의적인 코드를 삽입해 데이터베이스를 비정상적으로 조작하는 공격 기법.', example:"' OR '1'='1 처럼 항상 참이 되는 구문을 입력해 인증을 우회하는 것이 대표적 예.", related:['XSS','인젝션'] },
+  { id:'g_xss',    term:'XSS',              eng:'Cross-Site Scripting', category:'attack',  difficulty:'beginner',     definition:'웹 페이지에 악성 스크립트를 삽입해 다른 사용자의 브라우저에서 실행되도록 만드는 공격.', example:'<script>document.cookie 를 공격자 서버로 전송하는 스크립트 삽입.', related:['SQL 인젝션','CSRF'] },
+  { id:'g_csrf',   term:'CSRF',             eng:'Cross-Site Request Forgery', category:'attack', difficulty:'intermediate', definition:'사용자가 인증된 상태에서 의도치 않은 요청을 서버로 보내게 만드는 공격. 쿠키 기반 인증의 약점을 이용한다.', example:'이메일 내 이미지 태그로 계정 설정 변경 요청을 자동 전송.', related:['XSS','세션'] },
+  { id:'g_buf',    term:'버퍼 오버플로우',   eng:'Buffer Overflow',      category:'attack',  difficulty:'intermediate', definition:'프로그램이 할당된 버퍼 크기를 초과하는 데이터를 쓸 때 발생하며, 이를 악용해 임의 코드를 실행할 수 있다.', example:'C언어에서 gets() 함수 사용 시 입력 길이를 검증하지 않아 발생.', related:['스택 스매싱','ROP'] },
+  { id:'g_mitm',   term:'중간자 공격',       eng:'Man-in-the-Middle',    category:'attack',  difficulty:'intermediate', definition:'공격자가 통신하는 두 당사자 사이에 끼어들어 트래픽을 도청하거나 변조하는 공격.', example:'공용 Wi-Fi에서 ARP 스푸핑으로 피해자 트래픽을 가로챔.', related:['ARP 스푸핑','SSL 스트리핑'] },
+  { id:'g_firewall',term:'방화벽',           eng:'Firewall',             category:'defense', difficulty:'beginner',     definition:'네트워크 트래픽을 모니터링하고 사전 정의된 규칙에 따라 허용 또는 차단하는 보안 시스템.', example:'포트 22(SSH) 접근을 특정 IP만 허용하도록 방화벽 규칙 설정.', related:['IDS','IPS'] },
+  { id:'g_ids',    term:'IDS',              eng:'Intrusion Detection System', category:'defense', difficulty:'intermediate', definition:'네트워크 또는 시스템에서 비정상적인 활동이나 정책 위반을 탐지하는 시스템.', example:'시그니처 기반 IDS가 알려진 악성코드 패턴 탐지.', related:['IPS','방화벽','SIEM'] },
+  { id:'g_aes',    term:'AES',              eng:'Advanced Encryption Standard', category:'crypto', difficulty:'intermediate', definition:'128/192/256비트 키를 사용하는 대칭키 블록 암호 알고리즘. 현재 가장 널리 사용되는 표준 암호화 방식.', example:'SSL/TLS에서 대칭키 암호화에 AES-256 사용.', related:['RSA','블록 암호','대칭키'] },
+  { id:'g_vuln',   term:'취약점',            eng:'Vulnerability',        category:'concept', difficulty:'beginner',     definition:'소프트웨어나 시스템에 존재하는 보안상의 약점으로, 공격자가 이를 악용해 시스템을 침해할 수 있다.', example:'패치되지 않은 운영체제의 알려진 보안 취약점.', related:['CVE','익스플로잇','패치'] },
+  { id:'g_cve',    term:'CVE',              eng:'Common Vulnerabilities and Exposures', category:'concept', difficulty:'beginner', definition:'공개된 보안 취약점과 노출에 대한 표준 식별자 시스템. MITRE가 관리하며 CVE-연도-번호 형식을 사용.', example:'CVE-2021-44228 (Log4Shell 취약점).', related:['NVD','CVSS','취약점'] },
+  { id:'g_pentest',term:'침투 테스트',       eng:'Penetration Testing',  category:'concept', difficulty:'intermediate', definition:'시스템의 보안을 검증하기 위해 실제 공격을 시뮬레이션하는 인가된 테스트. 취약점을 발견하고 조치를 권고한다.', example:'웹 애플리케이션의 OWASP Top 10 항목을 체계적으로 점검.', related:['레드팀','버그 바운티','취약점 스캔'] },
+  { id:'g_zero',   term:'제로데이',          eng:'Zero-Day',             category:'attack',  difficulty:'advanced',    definition:'패치나 대응책이 없는 상태에서 알려진 취약점을 공격하는 것. 벤더가 취약점을 인지하기 전 또는 패치 배포 전에 발생.', example:'Stuxnet 웜이 4개의 윈도우 제로데이 취약점을 활용.', related:['CVE','익스플로잇','APT'] },
+];
+
+const DEFAULT_RESOURCES = [
+  { id:'r_owasp',   title:'OWASP Top 10',               category:'docs',   url:'https://owasp.org/www-project-top-ten/',         description:'웹 애플리케이션 보안에서 가장 중요한 10대 위험 목록. 보안 학습의 필수 출발점.', tags:['웹 보안','필수','무료'] },
+  { id:'r_nvd',     title:'NVD - 국가 취약점 데이터베이스', category:'docs',  url:'https://nvd.nist.gov/',                          description:'NIST가 관리하는 CVE 기반 취약점 정보 데이터베이스. CVSS 점수와 상세 분석 포함.', tags:['취약점','CVE','무료'] },
+  { id:'r_portswigger', title:'PortSwigger Web Security Academy', category:'course', url:'https://portswigger.net/web-security', description:'Burp Suite 제작사가 운영하는 무료 웹 보안 실습 플랫폼. SQL Injection, XSS 등 체계적 학습 가능.', tags:['무료','실습','웹 보안','영어'] },
+  { id:'r_thm',     title:'TryHackMe',                  category:'ctf',    url:'https://tryhackme.com/',                         description:'초보자 친화적인 사이버보안 학습 플랫폼. 브라우저에서 바로 해킹 실습 환경을 제공.', tags:['실습','입문','CTF'] },
+  { id:'r_htb',     title:'Hack The Box',               category:'ctf',    url:'https://www.hackthebox.com/',                    description:'현실적인 침투 테스트 환경을 제공하는 플랫폼. 중급~고급 학습자에게 적합.', tags:['CTF','실습','중급'] },
+  { id:'r_mitre',   title:'MITRE ATT&CK Framework',     category:'docs',   url:'https://attack.mitre.org/',                     description:'공격자 전술·기법·절차(TTP)를 체계적으로 정리한 지식 베이스. 위협 인텔리전스 분석에 필수.', tags:['위협 인텔리전스','ATT&CK','무료'] },
+  { id:'r_kisa',    title:'KISA 인터넷 보호나라',         category:'blog',   url:'https://www.krcert.or.kr/',                     description:'한국인터넷진흥원(KISA)의 보안 공지, 취약점 정보, 악성코드 분석 보고서 등을 제공.', tags:['한국어','뉴스','취약점'] },
+  { id:'r_cs50',    title:'CS50 Cybersecurity (Harvard)', category:'course', url:'https://cs50.harvard.edu/cybersecurity/',        description:'하버드 CS50 사이버보안 강의. 보안 기초를 탄탄히 쌓기 좋은 무료 코스.', tags:['무료','입문','영어','강의'] },
+  { id:'r_ghdb',    title:'Exploit-DB / Google Hacking DB', category:'tool', url:'https://www.exploit-db.com/',                  description:'공개 익스플로잇 코드와 Google Dork 데이터베이스 모음. 취약점 연구 및 CTF에 유용.', tags:['익스플로잇','CTF','무료'] },
+  { id:'r_sans',    title:'SANS Reading Room',           category:'blog',   url:'https://www.sans.org/white-papers/',             description:'SANS Institute의 보안 백서 모음. 심층 기술 자료와 연구 논문을 무료로 열람 가능.', tags:['백서','심화','영어','무료'] },
+];
+
+// ──────────────────────────────────────────
 // 초기화
 // ──────────────────────────────────────────
 function init() {
   loadStorage();
-  saveStorage();
+  seedDefaultData();
 
   buildAlphaFilter();
   bindEvents();
   renderAll();
+}
+
+function seedDefaultData() {
+  if (!S.glossary.length) {
+    S.glossary = DEFAULT_GLOSSARY.map(g => ({ ...g }));
+    saveStorage();
+  }
+  if (!S.resources.length) {
+    S.resources = DEFAULT_RESOURCES.map(r => ({ ...r }));
+    saveStorage();
+  }
 }
 
 // ──────────────────────────────────────────
